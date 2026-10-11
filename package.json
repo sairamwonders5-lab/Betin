@@ -1,0 +1,9 @@
+{
+  "name": "betin247",
+  "version": "1.0.0",
+  "description": "Betin247 Proprietary System",
+  "scripts": {
+    "build": "cd server && npm install && npm run build",
+    "start": "cd server && node dist/server.js"
+  }
+}
