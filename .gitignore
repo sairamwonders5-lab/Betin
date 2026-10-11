@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+.expo/
+*.log
+
+# Decompiled temporary artifacts
+apk_extracted/
+*.txt
+*.json.bak
+extract_details.js
+extract_strings.js
+extract_wc.js
+find_fetch_def.js
+list_methods.js
+inspect_fetch.js
+analyze_apk.js
+extracted_strings.json
+
+# System & IDE files
+.system_generated/
+.DS_Store
+Thumbs.db

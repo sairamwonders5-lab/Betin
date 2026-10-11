@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "BI247",
+    "slug": "bi247",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0d1117"
+    },
+    "android": {
+      "package": "com.global.bi247",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0d1117"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "INTERNET"
+      ]
+    }
+  }
+}
