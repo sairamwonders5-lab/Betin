@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BI247 — Sender & Receiver Live Control Room</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0f1d;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge-icon {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 900;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 18px;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #111827;
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid #1f2937;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+    }
+    .dot.offline {
+      background: #ef4444;
+      box-shadow: 0 0 10px #ef4444;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .stat-val {
+      font-size: 32px;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 18px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-success:hover { background: #047857; }
+    .btn-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+    }
+    .btn-secondary:hover { background: #334155; }
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+    .console {
+      background: #050811;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 13px;
+      min-height: 220px;
+      max-height: 350px;
+      overflow-y: auto;
+      color: #a7f3d0;
+    }
+    .log-line { margin-bottom: 6px; }
+    .log-time { color: #64748b; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-badge">
+        <div class="badge-icon">BI</div>
+        <div>
+          <div class="title">BI247 SENDER CONTROL ROOM</div>
+          <div class="subtitle">Proprietary Bet Placement Engine (Railway Cloud)</div>
+        </div>
+      </div>
+      <div class="server-status">
+        <div id="statusDot" class="dot"></div>
+        <span id="statusText">Railway Online</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Sender Status Card -->
+      <div class="card">
+        <div class="card-title">SENDER STATUS</div>
+        <div id="senderStatusVal" class="stat-val" style="color: #ef4444;">OFFLINE</div>
+        <div id="senderPingVal" class="stat-label">Click below to connect Sender</div>
+        <div style="margin-top: 16px;">
+          <button id="toggleSenderBtn" class="btn-primary" style="width: 100%;" onclick="toggleSender()">
+            ⚡ MAKE SENDER ONLINE
+          </button>
+        </div>
+      </div>
+
+      <!-- Receiver Workers Card -->
+      <div class="card">
+        <div class="card-title">CONNECTED RECEIVER WORKERS</div>
+        <div id="receiversCountVal" class="stat-val">0</div>
+        <div class="stat-label">Active IDs ready for parallel execution</div>
+        <div style="margin-top: 16px;">
+          <button id="simBtn" class="btn-secondary" style="width: 100%;" onclick="simulateWorkers()">
+            🤖 Spin Up 25 Receiver IDs
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick 1-Click Bet Dispatch -->
+      <div class="card">
+        <div class="card-title">1-CLICK BET DISPATCH</div>
+        <div class="stat-label" style="margin-bottom: 12px;">Trigger bet across all connected IDs simultaneously</div>
+        <div class="actions">
+          <button id="betBtn" class="btn-success" onclick="triggerTestBet()" disabled>
+            🚀 PLACE BET ON ALL IDs
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Execution Logs -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div class="card-title" style="margin: 0;">REAL-TIME EXECUTION AUDIT LOG</div>
+        <button class="btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="clearLogs()">Clear</button>
+      </div>
+      <div id="consoleLog" class="console">
+        <div class="log-line"><span class="log-time">[System]</span> Control room loaded. Connected to Railway.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ws = null;
+    let isSenderOnline = false;
+    let lastPing = 0;
+    let pingInterval = null;
+
+    const logEl = document.getElementById('consoleLog');
+    function log(msg, color) {
+      const time = new Date().toLocaleTimeString();
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      if (color) line.style.color = color;
+      line.innerHTML = `<span class="log-time">[${time}]</span> ${msg}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function clearLogs() {
+      logEl.innerHTML = '';
+    }
+
+    // Poll health metrics
+    async function updateStats() {
+      try {
+        const res = await fetch('/health');
+        const data = await res.json();
+        document.getElementById('receiversCountVal').textContent = data.activeReceivers || 0;
+        if (!isSenderOnline && data.activeSenders > 0) {
+          document.getElementById('senderStatusVal').textContent = 'ONLINE (App)';
+          document.getElementById('senderStatusVal').style.color = '#22c55e';
+        }
+      } catch (err) {}
+    }
+    setInterval(updateStats, 2000);
+    updateStats();
+
+    // Toggle Sender Online
+    function toggleSender() {
+      if (isSenderOnline) {
+        if (ws) ws.close();
+        return;
+      }
+
+      log('Connecting to WebSocket as SENDER...', '#93c5fd');
+      const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${wsProto}//${location.host}`);
+
+      ws.onopen = () => {
+        log('WebSocket connected. Authenticating as admin...', '#93c5fd');
+        ws.send(JSON.stringify({
+          type: 'login',
+          data: { username: 'admin', password: 'admin123', website: 'betin247' }
+        }));
+      };
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'login' && msg.data?.isSender) {
+          isSenderOnline = true;
+          document.getElementById('senderStatusVal').textContent = 'ONLINE';
+          document.getElementById('senderStatusVal').style.color = '#22c55e';
+          document.getElementById('toggleSenderBtn').textContent = 'DISCONNECT SENDER';
+          document.getElementById('toggleSenderBtn').className = 'btn-danger';
+          document.getElementById('betBtn').disabled = false;
+          log('✅ SENDER AUTHENTICATED & ONLINE!', '#4ade80');
+
+          // Start ping and receiver counter
+          pingInterval = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              lastPing = Date.now();
+              ws.send(JSON.stringify({ type: 'ping' }));
+              ws.send(JSON.stringify({ type: 'recieverCount' }));
+            }
+          }, 1000);
+        } else if (msg.type === 'pong') {
+          const latency = Math.max(1, Date.now() - lastPing);
+          document.getElementById('senderPingVal').textContent = `Latency: ${latency} ms`;
+        } else if (msg.type === 'recieverCount') {
+          document.getElementById('receiversCountVal').textContent = msg.data.recieverCount;
+        } else if (msg.type === 'betResult') {
+          log(`🎉 BET DISPATCH ACK: Target IDs: ${msg.data.receiversTargeted}, Latency: ${msg.data.dispatchLatencyMs} ms`, '#38bdf8');
+        }
+      };
+
+      ws.onclose = () => {
+        isSenderOnline = false;
+        clearInterval(pingInterval);
+        document.getElementById('senderStatusVal').textContent = 'OFFLINE';
+        document.getElementById('senderStatusVal').style.color = '#ef4444';
+        document.getElementById('senderPingVal').textContent = 'Disconnected';
+        document.getElementById('toggleSenderBtn').textContent = '⚡ MAKE SENDER ONLINE';
+        document.getElementById('toggleSenderBtn').className = 'btn-primary';
+        document.getElementById('betBtn').disabled = true;
+        log('Sender disconnected', '#f87171');
+      };
+    }
+
+    // Simulate 25 Receivers
+    async function simulateWorkers() {
+      const btn = document.getElementById('simBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Spawning 25 IDs...';
+      log('Spawning 25 simulated receiver worker IDs on Railway...', '#fbbf24');
+
+      try {
+        const res = await fetch('/api/simulate-receivers', { method: 'POST' });
+        const data = await res.json();
+        log(`✅ Successfully connected ${data.connected} worker accounts!`, '#4ade80');
+        updateStats();
+      } catch (err) {
+        log(`Error: ${err.message}`, '#ef4444');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🤖 Connected (Click to Refresh)';
+      }
+    }
+
+    // Trigger Test Bet
+    function triggerTestBet() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      const count = document.getElementById('receiversCountVal').textContent;
+      log(`🚀 TRIGGERING ONE-CLICK BET ACROSS ${count} IDS...`, '#f59e0b');
+
+      ws.send(JSON.stringify({
+        type: 'bet',
+        data: {
+          matchId: '10928374',
+          betId: '883920',
+          betDetailId: '192837',
+          betTitle: 'Live Cricket - Match Winner',
+          marketType: 1,
+          isBack: true,
+          rate: 1.85,
+          stake: 500,
+          selectionName: 'India',
+          marketName: 'MATCH_ODDS',
+          side: 'BACK',
+        }
+      }));
+    }
+  </script>
+</body>
+</html>

@@ -118,9 +118,66 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Dashboard Route
+app.get(['/', '/dashboard'], (req, res) => {
+  const htmlPath = fs.existsSync(path.join(__dirname, '../public/index.html'))
+    ? path.join(__dirname, '../public/index.html')
+    : path.join(__dirname, '../../server/public/index.html');
+  if (fs.existsSync(htmlPath)) {
+    res.sendFile(htmlPath);
+  } else {
+    res.json({ message: 'BI247 Engine Running' });
+  }
+});
+
 // Bet Audit Log
 app.get('/api/bets', (req, res) => {
   res.json(Array.from(recentBets.values()).slice(-50));
+});
+
+// Simulate 25 Receivers for testing
+app.post('/api/simulate-receivers', (req, res) => {
+  let created = 0;
+  for (let i = 1; i <= 25; i++) {
+    const uname = `receiver${i}`;
+    const id = `sim_${uname}`;
+    if (!sessions.has(id)) {
+      sessions.set(id, {
+        id,
+        username: uname,
+        website: 'betin247',
+        isSender: false,
+        isLoggedIn: true,
+        lastPing: Date.now(),
+        currentPingMs: 12,
+        stakes: { backStake: 500, fancyStake: 500 },
+        allowedSenders: ['admin', 'sender1'],
+        ws: {
+          readyState: WebSocket.OPEN,
+          send: (data: string) => {
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'bet') {
+                const parent = recentBets.get(parsed.parentBetId);
+                if (parent) {
+                  parent.attempts[uname] = {
+                    receiverUsername: uname,
+                    status: 'ACCEPTED',
+                    message: 'Simulated Execution in 28ms',
+                    latencyMs: 28,
+                    timestamp: Date.now(),
+                  };
+                }
+              }
+            } catch (e) {}
+          },
+        },
+      });
+      created++;
+    }
+  }
+  broadcastReceiverCount();
+  res.json({ success: true, connected: 25, new: created });
 });
 
 // -----------------------------------------------------------------------------
