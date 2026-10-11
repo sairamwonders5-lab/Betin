@@ -25,7 +25,7 @@ const DEFAULT_WEBSITES = [
 
 export default function App() {
   // Config state
-  const [serverUrl, setServerUrl] = useState('https://betin247-production.up.railway.app');
+  const [serverUrl, setServerUrl] = useState('https://betin-production.up.railway.app');
   const [websiteUrl, setWebsiteUrl] = useState('https://betin247.com');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
